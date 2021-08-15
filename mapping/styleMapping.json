@@ -1,0 +1,137 @@
+{
+  "components": {
+    "Card": {
+      "appearances": {
+        "outline": {
+          "mapping": {
+            "bodyPaddingHorizontal": -16,
+            "bodyPaddingVertical": -16
+          }
+        }
+      }
+    },
+    "Button": {
+      "appearances": {
+        "filled": {
+          "variantGroups": {
+            "size": {
+              "medium": {
+                "textFontFamily": "font-bold",
+                "textFontWeight": "600"
+              }
+            }
+          }
+        },
+        "outline": {
+          "variantGroups": {
+            "size": {
+              "medium": {
+                "textFontFamily": "font-bold",
+                "textFontWeight": "600"
+              }
+            }
+          }
+        },
+        "ghost": {
+          "variantGroups": {
+            "size": {
+              "medium": {
+                "textFontFamily": "font-bold",
+                "textFontWeight": "600"
+              }
+            }
+          }
+        }
+      }
+    },
+    "Text": {
+      "meta": {
+        "scope": "all",
+        "parameters": {
+          "lineHeight": {
+            "type": "number"
+          },
+          "fontSize": {
+            "type": "number"
+          }
+        }
+      },
+      "appearances": {
+        "default": {
+          "variantGroups": {
+            "category": {
+              "h1": {
+                "fontSize": "text-heading-1-font-size",
+                "lineHeight": "text-heading-1-line-height"
+              },
+              "h4": {
+                "fontSize": "text-heading-4-font-size",
+                "lineHeight": "text-heading-4-line-height"
+              },
+              "h6": {
+                "lineHeight": "text-heading-6-line-height"
+              },
+              "p1": {
+                "fontSize": "text-font-size",
+                "lineHeight": "text-line-height"
+              },
+              "c1": {
+                "lineHeight": "text-caption-1-line-height"
+              }
+            }
+          }
+        }
+      }
+    },
+    "Popover": {
+      "appearances": {
+        "default": {
+          "mapping": {
+            "top": 10
+          }
+        }
+      },
+      "meta": {
+        "parameters": {
+          "top": { "type": "number" }
+        }
+      }
+    }
+  },
+  "strict": {
+    "title-font-family": "font-bold",
+
+    "text-label-font-family": "font-light",
+
+    "text-subtitle-1-font-family": "font-semi-bold",
+    "text-subtitle-2-font-family": "font-medium",
+
+    "text-caption-1-font-family": "font-light",
+    "text-caption-1-line-height": 15,
+
+    "text-caption-2-font-family": "font-light",
+
+    "text-heading-1-font-size": 30,
+    "text-heading-1-line-height": 34,
+    "text-heading-1-font-family": "font-bold",
+    "text-heading-1-font-weight": "800",
+
+    "text-heading-2-font-family": "font-bold",
+    "text-heading-3-font-family": "font-bold",
+
+    "text-heading-4-font-size": 20,
+    "text-heading-4-line-height": 24,
+    "text-heading-4-font-family": "font-bold",
+
+    "text-heading-5-font-family": "font-bold",
+
+    "text-heading-6-font-family": "font-bold",
+    "text-heading-6-line-height": 25,
+
+    "border-radius": 8,
+
+    "text-font-size": 14,
+    "text-line-height": 20,
+    "text-font-family": "font-regular"
+  }
+}
