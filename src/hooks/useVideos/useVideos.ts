@@ -32,6 +32,7 @@ const useVideos = () => {
       setLoading(true);
       await firestoreDb.current
         ?.collection("videos")
+        .orderBy("created_at", "desc")
         .get()
         .then((querySnapshot) => {
           const allVideos = querySnapshot.docs;
@@ -45,6 +46,7 @@ const useVideos = () => {
   }, []);
 
   const createVideo = useCallback(async (memo: TMemo) => {
+    setLoading(true);
     await firestoreDb.current
       .collection("videos")
       .add({
@@ -72,6 +74,9 @@ const useVideos = () => {
             clearMemo();
             getVideos();
           });
+      })
+      .finally(() => {
+        setLoading(false);
       });
   }, []);
 

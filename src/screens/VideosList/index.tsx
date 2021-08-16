@@ -12,8 +12,11 @@ const EmptyList = () => (
     kitchen up above.
   </Text>
 );
-
-const VideoList = () => {
+type Props = {
+  selected: boolean;
+  onSelect: () => void;
+};
+const VideoList = ({ selected, onSelect }: Props) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [previewMemo, setPreviewMemo] = useState({});
   const { loading, videos, getVideos } = useVideos();
@@ -29,7 +32,7 @@ const VideoList = () => {
 
   const onCloseModal = () => setModalVisible(false);
   return (
-    <View>
+    <View style={{ flex: 1 }}>
       <Text category="h4" status="primary" style={styles.header}>
         Gram
       </Text>

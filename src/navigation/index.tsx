@@ -5,6 +5,7 @@ import Home from "../screens/Home";
 import Loader from "../screens/Loader";
 import useStartup from "../hooks/useStartup";
 import { VideosContextProvider } from "../hooks/useVideos/VideosContext";
+import { PermissionsContextProvider } from "../hooks/usePermissions/PermissionsContext";
 
 const STACK_OPTIONS = { headerShown: false };
 
@@ -14,18 +15,20 @@ function Navigator() {
   const loading = useStartup();
   return (
     <VideosContextProvider>
-      <NavigationContainer>
-        <Stack.Navigator screenOptions={STACK_OPTIONS}>
-          {loading ? (
-            <Stack.Screen name="loader" component={Loader} />
-          ) : (
-            <>
-              <Stack.Screen name="home" component={Home} />
-              <Stack.Screen name="video" component={Home} />
-            </>
-          )}
-        </Stack.Navigator>
-      </NavigationContainer>
+      <PermissionsContextProvider>
+        <NavigationContainer>
+          <Stack.Navigator screenOptions={STACK_OPTIONS}>
+            {loading ? (
+              <Stack.Screen name="loader" component={Loader} />
+            ) : (
+              <>
+                <Stack.Screen name="home" component={Home} />
+                <Stack.Screen name="video" component={Home} />
+              </>
+            )}
+          </Stack.Navigator>
+        </NavigationContainer>
+      </PermissionsContextProvider>
     </VideosContextProvider>
   );
 }

@@ -1,4 +1,4 @@
-import { Button, Icon, Spinner, Text } from "@ui-kitten/components";
+import { Button, Icon, Spinner, Text, useTheme } from "@ui-kitten/components";
 import { Audio, Video } from "expo-av";
 import React, { useCallback, useEffect, useState } from "react";
 import { View, StyleSheet, Platform, Alert, Dimensions } from "react-native";
@@ -10,30 +10,22 @@ import { AnimatePresence, MotiView } from "moti";
 const { height: HEIGHT } = Dimensions.get("window");
 import useVideos from "../../hooks/useVideos";
 import { Camera } from "expo-camera";
+import usePermissions from "../../hooks/usePermissions";
+import Permissions from "./Permissions";
 
-const VIDEO_HEIGHT = HEIGHT / 3.5;
+const VIDEO_HEIGHT = HEIGHT / 5;
 
-const NewMemo = () => {
-  const { memo, updateMemo, clearMemo, createVideo } = useVideos();
+type Props = {
+  selected: boolean;
+  onSelect: () => void;
+};
+const NewMemo = ({ selected, onSelect }: Props) => {
+  const { loading, memo, updateMemo, createVideo } = useVideos();
 
   const [progress, setProgress] = useState(0);
   const [uploading, setUploading] = useState(false);
+  const { hasPermissions } = usePermissions();
   const { navigate } = useNavigation();
-  useEffect(() => {
-    (async () => {
-      if (Platform.OS !== "web") {
-        await Camera.requestPermissionsAsync();
-        await ImagePicker.requestMediaLibraryPermissionsAsync();
-        await Audio.requestPermissionsAsync();
-
-        if (status !== "granted") {
-          Alert.alert(
-            "Sorry, we need camera roll permissions to make this work!"
-          );
-        }
-      }
-    })();
-  }, []);
 
   const getThumbnail = useCallback(async ({ uri, duration }) => {
     const response = await VideoThumbnails.getThumbnailAsync(uri, {
@@ -75,12 +67,10 @@ const NewMemo = () => {
     const thumbnail = await getThumbnail(result);
     if (thumbnail.uri) updateMemo({ ...result, thumbnail: thumbnail.uri });
   }, [navigate]);
-
-  return (
-    <View>
-      <Text category="h4" status="primary" style={styles.header}>
-        Kitchen
-      </Text>
+  const theme = useTheme();
+  const primaryColor = theme["color-primary-default"];
+  const renderContent = () => (
+    <>
       <View style={styles.buttonsContainer}>
         <Button
           style={{ width: "40%" }}
@@ -97,56 +87,72 @@ const NewMemo = () => {
           CAPTURE
         </Button>
       </View>
-      <AnimatePresence></AnimatePresence>
-      {!!memo?.uri ? (
-        <MotiView
-          from={{ opacity: 1 }}
-          animate={{ opacity: 1 }}
-          exit={{
-            opacity: 0,
-          }}
-        >
-          <View style={styles.videoContainer}>
-            <Video
-              resizeMode="contain"
-              style={styles.video}
-              source={{ uri: memo?.uri }}
-              posterSource={{ uri: memo?.thumbnail }}
-              usePoster
-              useNativeControls
-            />
-            <Button
-              style={{ width: "40%" }}
-              onPress={onCreateVideo}
-              disabled={uploading}
-              status="control"
-              accessoryRight={() =>
-                uploading ? (
-                  <Spinner status="info" />
-                ) : (
-                  <Icon name="paper-plane" />
-                )
-              }
-            >
-              {uploading ? "HANG ON" : "UPLOAD"}
-            </Button>
+      <AnimatePresence>
+        {!!memo?.uri ? (
+          <MotiView
+            from={{ opacity: 1 }}
+            animate={{ opacity: 1 }}
+            exit={{
+              opacity: 0,
+            }}
+          >
+            <View style={styles.videoContainer}>
+              <Video
+                resizeMode="contain"
+                style={styles.video}
+                source={{ uri: memo?.uri }}
+                posterSource={{ uri: memo?.thumbnail }}
+                usePoster
+                useNativeControls
+              />
+              <Button
+                style={{ width: "40%" }}
+                onPress={onCreateVideo}
+                disabled={uploading}
+                status="control"
+                accessoryRight={() =>
+                  uploading ? (
+                    <Spinner status="info" />
+                  ) : (
+                    <Icon name="paper-plane" />
+                  )
+                }
+              >
+                {uploading ? "HANG ON" : "UPLOAD"}
+              </Button>
+            </View>
+          </MotiView>
+        ) : (
+          <MotiView
+            from={{ opacity: 1 }}
+            animate={{ opacity: 1 }}
+            exit={{
+              opacity: 0,
+            }}
+          >
+            <Text status="info" style={styles.guideText}>
+              {uploading
+                ? `Uploading... Hang on!{'\n'}${progress}% done`
+                : "Record a new memo to your memogram via one of the options above."}
+            </Text>
+          </MotiView>
+        )}
+      </AnimatePresence>
+    </>
+  );
+  return (
+    <View>
+      <Text category="h4" status="primary" style={styles.header}>
+        Kitchen
+      </Text>
+      {hasPermissions ? renderContent() : <Permissions />}
+      <AnimatePresence>
+        {loading && (
+          <View style={[StyleSheet.absoluteFill, styles.loaderContainer]}>
+            <Spinner status="primary" />
           </View>
-        </MotiView>
-      ) : (
-        <MotiView
-          from={{ opacity: 1 }}
-          animate={{ opacity: 1 }}
-          exit={{
-            opacity: 0,
-          }}
-        >
-          <Text status="info" style={styles.guideText}>
-            {uploading
-              ? `Uploading... Hang on!{'\n'}${progress}% done`
-              : "Record a new memo to your memogram via one of the options above."}
-          </Text>
-        </MotiView>
-      )}
+        )}
+      </AnimatePresence>
     </View>
   );
 };
@@ -156,6 +162,11 @@ export default NewMemo;
 const styles = StyleSheet.create({
   header: {
     marginTop: 20,
+  },
+  loaderContainer: {
+    backgroundColor: "rgba(255,255,255,0.5)",
+    justifyContent: "center",
+    alignItems: "center",
   },
   buttonsContainer: {
     flexDirection: "row",
