@@ -3,6 +3,7 @@ import React, { useCallback } from "react";
 import { View, StyleSheet, FlatList } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import useVideos from "../../hooks/useVideos";
+import VideoItem from "./VideoItem";
 
 const EmptyList = () => (
   <Text status="info" style={styles.guideText}>
@@ -12,10 +13,12 @@ const EmptyList = () => (
 );
 
 const VideoList = () => {
-  const { videos } = useVideos();
+  const { loading, videos, getVideos } = useVideos();
   const { navigate } = useNavigation();
-  const renderItem = useCallback(() => {
-    return null;
+  const renderItem = useCallback(({ item }: any) => {
+    console.log(item);
+
+    return <VideoItem memo={item} />;
   }, []);
   return (
     <View>
@@ -23,6 +26,8 @@ const VideoList = () => {
         Gram
       </Text>
       <FlatList
+        refreshing={loading}
+        onRefresh={getVideos}
         data={videos}
         renderItem={renderItem}
         ListEmptyComponent={EmptyList}

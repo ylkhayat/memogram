@@ -8,6 +8,9 @@ import "react-native-reanimated";
 import Navigator from "./src/navigation";
 import firebase from "firebase/app";
 import "firebase/storage";
+import "firebase/auth";
+import FlashMessage from "react-native-flash-message";
+import Constants from "expo-constants";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBfI1tdOhLEygHXQVEwP5bc6pUu6wyobJk",
@@ -21,6 +24,7 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
+firebase.auth().signInAnonymously();
 
 export default function App() {
   return (
@@ -31,6 +35,13 @@ export default function App() {
       <ApplicationProvider {...eva} theme={{ ...eva.light, ...theme }}>
         <Navigator />
       </ApplicationProvider>
+      <FlashMessage
+        duration={1000}
+        position="top"
+        statusBarHeight={Constants.statusBarHeight}
+        icon={{ icon: "auto", position: "right" }}
+        titleStyle={{ fontFamily: "font-regular" }}
+      />
     </>
   );
 }

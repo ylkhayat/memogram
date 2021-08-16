@@ -2,7 +2,7 @@ import { Text } from "@ui-kitten/components";
 import React from "react";
 import { View } from "react-native";
 import NewMemo from "./NewMemo";
-import VideoList from "./VideoList";
+import VideosList from "../VideosList";
 
 const Home = () => {
   return (
@@ -10,7 +10,7 @@ const Home = () => {
       <Text category="h4">Welcome to your</Text>
       <Text category="h4">Memogram</Text>
       <NewMemo />
-      <VideoList />
+      <VideosList />
     </View>
   );
 };

@@ -1,4 +1,4 @@
-import { Button, Text } from "@ui-kitten/components";
+import { Button, Icon, Spinner, Text } from "@ui-kitten/components";
 import { Video } from "expo-av";
 import React, { useCallback, useEffect, useState } from "react";
 import { View, StyleSheet, Platform, Alert, Dimensions } from "react-native";
@@ -6,17 +6,17 @@ import * as ImagePicker from "expo-image-picker";
 import { useNavigation } from "@react-navigation/native";
 import { ALLOWED_DURATION_IN_SECS } from "../../constants";
 import * as VideoThumbnails from "expo-video-thumbnails";
-import useMemoVid from "../../hooks/useMemoVid";
 import { AnimatePresence, MotiView } from "moti";
-import firebase from "firebase";
 const { height: HEIGHT } = Dimensions.get("window");
+import useVideos from "../../hooks/useVideos";
 
 const VIDEO_HEIGHT = HEIGHT / 3.5;
 
 const NewMemo = () => {
+  const { memo, updateMemo, clearMemo, createVideo } = useVideos();
+
   const [progress, setProgress] = useState(0);
   const [uploading, setUploading] = useState(false);
-  const { memo, updateMemo, clearMemo } = useMemoVid();
   const { navigate } = useNavigation();
   useEffect(() => {
     (async () => {
@@ -41,7 +41,11 @@ const NewMemo = () => {
     return response;
   }, []);
 
-  const pickImage = useCallback(async () => {
+  const onCreateVideo = useCallback(() => {
+    createVideo(memo);
+  }, [createVideo, memo]);
+
+  const pickVideo = useCallback(async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Videos,
       allowsEditing: true,
@@ -71,33 +75,6 @@ const NewMemo = () => {
     if (thumbnail.uri) updateMemo({ ...result, thumbnail: thumbnail.uri });
   }, [navigate]);
 
-  const uploadImage = useCallback(async () => {
-    const { uri } = memo;
-    const filename = uri?.substring(uri.lastIndexOf("/") + 1);
-    const uploadUri = Platform.OS === "ios" ? uri?.replace("file://", "") : uri;
-    setUploading(true);
-    try {
-      await firebase
-        .storage()
-        .ref(filename)
-        .putFile(uploadUri)
-        .on("state_changed", (snapshot) => {
-          setProgress(
-            Math.round(snapshot.bytesTransferred / snapshot.totalBytes) * 10000
-          );
-        });
-    } catch (e) {
-      console.error(e);
-    }
-    setUploading(false);
-    clearMemo();
-    setProgress(0);
-    Alert.alert(
-      "Photo uploaded!",
-      "Your photo has been uploaded to Firebase Cloud Storage!"
-    );
-  }, []);
-
   return (
     <View>
       <Text category="h4" status="primary" style={styles.header}>
@@ -106,7 +83,7 @@ const NewMemo = () => {
       <View style={styles.buttonsContainer}>
         <Button
           style={{ width: "40%" }}
-          onPress={pickImage}
+          onPress={pickVideo}
           disabled={uploading}
         >
           SELECT
@@ -139,9 +116,16 @@ const NewMemo = () => {
             />
             <Button
               style={{ width: "40%" }}
-              onPress={uploadImage}
+              onPress={onCreateVideo}
               disabled={uploading}
               status="control"
+              accessoryRight={() =>
+                uploading ? (
+                  <Spinner status="info" />
+                ) : (
+                  <Icon name="paper-plane" />
+                )
+              }
             >
               {uploading ? "HANG ON" : "UPLOAD"}
             </Button>
