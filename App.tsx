@@ -37,6 +37,7 @@ export default function App() {
       </ApplicationProvider>
       <FlashMessage
         duration={1000}
+        floating
         position="top"
         statusBarHeight={Constants.statusBarHeight}
         icon={{ icon: "auto", position: "right" }}
