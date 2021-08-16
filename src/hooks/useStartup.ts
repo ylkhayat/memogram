@@ -1,7 +1,8 @@
-import React from "react";
+import { useEffect, useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import * as Font from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
+import firebase from "firebase";
 
 import {
   Poppins_100Thin,
@@ -16,14 +17,14 @@ import {
 } from "@expo-google-fonts/poppins";
 
 export default function useStartup() {
-  const [isLoading, setIsLoading] = React.useState(true);
+  const [isFontsLoading, setIsFontsLoading] = useState(true);
+  const [isFirebaseLoading, setIsFirebaseLoading] = useState(true);
 
-  React.useEffect(() => {
-    async function loadResourcesAndDataAsync() {
+  useEffect(() => {
+    async function loadFonts() {
       try {
         SplashScreen.preventAutoHideAsync();
 
-        // Load fonts
         await Font.loadAsync({
           ...Ionicons.font,
           "font-thin": Poppins_100Thin,
@@ -40,14 +41,20 @@ export default function useStartup() {
         console.warn(e);
       } finally {
         setTimeout(() => {
-          setIsLoading(false);
+          setIsFontsLoading(false);
         }, 1500);
         SplashScreen.hideAsync();
       }
     }
 
-    loadResourcesAndDataAsync();
+    loadFonts();
   }, []);
 
-  return isLoading;
+  useEffect(() => {
+    console.log(firebase.apps.length > 0);
+
+    setIsFirebaseLoading(firebase.apps.length > 0 || true);
+  }, [firebase.apps.length]);
+
+  return isFontsLoading && isFirebaseLoading;
 }

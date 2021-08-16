@@ -1,12 +1,17 @@
 import { Button, Text } from "@ui-kitten/components";
 import { Video } from "expo-av";
 import React, { useCallback, useEffect } from "react";
-import { View, StyleSheet, Platform, Alert } from "react-native";
+import { View, StyleSheet, Platform, Alert, Dimensions } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { useNavigation } from "@react-navigation/native";
 import { ALLOWED_DURATION_IN_SECS } from "../../constants";
 import * as VideoThumbnails from "expo-video-thumbnails";
 import useMemoVid from "../../hooks/useMemoVid";
+import { AnimatePresence, MotiView } from "moti";
+
+const { height: HEIGHT } = Dimensions.get("window");
+
+const VIDEO_HEIGHT = HEIGHT / 3.5;
 
 const NewMemo = () => {
   const { memo, updateMemo } = useMemoVid();
@@ -77,26 +82,38 @@ const NewMemo = () => {
           CAPTURE
         </Button>
       </View>
+      <AnimatePresence></AnimatePresence>
       {!!memo?.uri ? (
-        <View style={styles.videoContainer}>
-          <Video
-            style={{
-              height: memo?.height * 0.7,
-              width: "100%",
-              alignSelf: "center",
-            }}
-            posterSource={{ uri: memo?.thumbnail }}
-            usePoster
-            source={{ uri: memo?.uri }}
-            useNativeControls
-            scaleX={0.7}
-            scaleY={0.7}
-          />
-        </View>
+        <MotiView
+          from={{ opacity: 1 }}
+          animate={{ opacity: 1 }}
+          exit={{
+            opacity: 0,
+          }}
+        >
+          <View style={styles.videoContainer}>
+            <Video
+              resizeMode="contain"
+              style={styles.video}
+              source={{ uri: memo?.uri }}
+              posterSource={{ uri: memo?.thumbnail }}
+              usePoster
+              useNativeControls
+            />
+          </View>
+        </MotiView>
       ) : (
-        <Text category="s2" status="hint" style={styles.header}>
-          Record a new memo to your memogram via one of the options above.
-        </Text>
+        <MotiView
+          from={{ opacity: 1 }}
+          animate={{ opacity: 1 }}
+          exit={{
+            opacity: 0,
+          }}
+        >
+          <Text status="info" style={styles.guideText}>
+            Record a new memo to your memogram via one of the options above.
+          </Text>
+        </MotiView>
       )}
     </View>
   );
@@ -116,7 +133,15 @@ const styles = StyleSheet.create({
   },
   videoContainer: {
     alignItems: "center",
-    marginHorizontal: 20,
   },
-  video: {},
+  guideText: {
+    marginVertical: 20,
+    textAlign: "center",
+  },
+  video: {
+    width: "100%",
+    height: VIDEO_HEIGHT,
+    alignSelf: "center",
+    marginVertical: 20,
+  },
 });
