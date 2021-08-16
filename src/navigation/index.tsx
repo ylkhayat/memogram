@@ -3,7 +3,6 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Home from "../screens/Home";
 import Loader from "../screens/Loader";
-import Camera from "../screens/Home/Camera";
 import useStartup from "../hooks/useStartup";
 import { VideosContextProvider } from "../hooks/useVideos/VideosContext";
 
@@ -23,7 +22,6 @@ function Navigator() {
             <>
               <Stack.Screen name="home" component={Home} />
               <Stack.Screen name="video" component={Home} />
-              <Stack.Screen name="camera" component={Camera} />
             </>
           )}
         </Stack.Navigator>

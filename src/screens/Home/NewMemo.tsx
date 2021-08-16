@@ -1,5 +1,5 @@
 import { Button, Icon, Spinner, Text } from "@ui-kitten/components";
-import { Video } from "expo-av";
+import { Audio, Video } from "expo-av";
 import React, { useCallback, useEffect, useState } from "react";
 import { View, StyleSheet, Platform, Alert, Dimensions } from "react-native";
 import * as ImagePicker from "expo-image-picker";
@@ -9,6 +9,7 @@ import * as VideoThumbnails from "expo-video-thumbnails";
 import { AnimatePresence, MotiView } from "moti";
 const { height: HEIGHT } = Dimensions.get("window");
 import useVideos from "../../hooks/useVideos";
+import { Camera } from "expo-camera";
 
 const VIDEO_HEIGHT = HEIGHT / 3.5;
 
@@ -21,8 +22,10 @@ const NewMemo = () => {
   useEffect(() => {
     (async () => {
       if (Platform.OS !== "web") {
-        const { status } =
-          await ImagePicker.requestMediaLibraryPermissionsAsync();
+        await Camera.requestPermissionsAsync();
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+        await Audio.requestPermissionsAsync();
+
         if (status !== "granted") {
           Alert.alert(
             "Sorry, we need camera roll permissions to make this work!"
@@ -31,8 +34,6 @@ const NewMemo = () => {
       }
     })();
   }, []);
-
-  console.log({ memo });
 
   const getThumbnail = useCallback(async ({ uri, duration }) => {
     const response = await VideoThumbnails.getThumbnailAsync(uri, {
