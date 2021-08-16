@@ -1,9 +1,10 @@
-import { Text } from "@ui-kitten/components";
-import React, { useCallback } from "react";
-import { View, StyleSheet, FlatList } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { Icon, Text, useTheme } from "@ui-kitten/components";
+import React, { useCallback, useState } from "react";
+import { View, StyleSheet, FlatList, TouchableOpacity } from "react-native";
 import useVideos from "../../hooks/useVideos";
 import VideoItem from "./VideoItem";
+import Modal from "react-native-modal";
+import { Video } from "expo-av";
 
 const EmptyList = () => (
   <Text status="info" style={styles.guideText}>
@@ -13,13 +14,20 @@ const EmptyList = () => (
 );
 
 const VideoList = () => {
+  const [modalVisible, setModalVisible] = useState(false);
+  const [previewMemo, setPreviewMemo] = useState({});
   const { loading, videos, getVideos } = useVideos();
-  const { navigate } = useNavigation();
+  const theme = useTheme();
+  const primaryColor = theme["color-primary-default"];
   const renderItem = useCallback(({ item }: any) => {
-    console.log(item);
-
-    return <VideoItem memo={item} />;
+    const onPlayVideo = () => {
+      setModalVisible(true);
+      setPreviewMemo(item);
+    };
+    return <VideoItem memo={item} onPlayVideo={onPlayVideo} />;
   }, []);
+
+  const onCloseModal = () => setModalVisible(false);
   return (
     <View>
       <Text category="h4" status="primary" style={styles.header}>
@@ -32,6 +40,32 @@ const VideoList = () => {
         renderItem={renderItem}
         ListEmptyComponent={EmptyList}
       />
+      <Modal isVisible={modalVisible}>
+        <View style={styles.videoContainer}>
+          <TouchableOpacity
+            onPress={onCloseModal}
+            style={{
+              position: "absolute",
+              top: 20,
+              left: 20,
+            }}
+          >
+            <Icon
+              name="ios-arrow-back-outline"
+              style={{
+                color: primaryColor,
+                fontSize: 40,
+              }}
+            />
+          </TouchableOpacity>
+          <Video
+            resizeMode="contain"
+            style={styles.video}
+            source={{ uri: previewMemo.video_url }}
+            useNativeControls
+          />
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -49,12 +83,19 @@ const styles = StyleSheet.create({
     marginVertical: 5,
   },
   videoContainer: {
-    alignItems: "center",
-    marginHorizontal: 20,
+    flex: 1,
+    backgroundColor: "#f0f0f0",
+    justifyContent: "center",
+    paddingHorizontal: 20,
   },
   guideText: {
     marginVertical: 20,
     textAlign: "center",
   },
-  video: {},
+  video: {
+    width: "100%",
+    aspectRatio: 1,
+    alignSelf: "center",
+    marginVertical: 20,
+  },
 });
