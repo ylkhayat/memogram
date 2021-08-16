@@ -1,0 +1,1 @@
+export const ALLOWED_DURATION_IN_SECS = 10;
