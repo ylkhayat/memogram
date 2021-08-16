@@ -1,6 +1,6 @@
 import { Button, Text } from "@ui-kitten/components";
 import { Video } from "expo-av";
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { View, StyleSheet, Platform, Alert, Dimensions } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { useNavigation } from "@react-navigation/native";
@@ -8,13 +8,15 @@ import { ALLOWED_DURATION_IN_SECS } from "../../constants";
 import * as VideoThumbnails from "expo-video-thumbnails";
 import useMemoVid from "../../hooks/useMemoVid";
 import { AnimatePresence, MotiView } from "moti";
-
+import firebase from "firebase";
 const { height: HEIGHT } = Dimensions.get("window");
 
 const VIDEO_HEIGHT = HEIGHT / 3.5;
 
 const NewMemo = () => {
-  const { memo, updateMemo } = useMemoVid();
+  const [progress, setProgress] = useState(0);
+  const [uploading, setUploading] = useState(false);
+  const { memo, updateMemo, clearMemo } = useMemoVid();
   const { navigate } = useNavigation();
   useEffect(() => {
     (async () => {
@@ -69,16 +71,51 @@ const NewMemo = () => {
     if (thumbnail.uri) updateMemo({ ...result, thumbnail: thumbnail.uri });
   }, [navigate]);
 
+  const uploadImage = useCallback(async () => {
+    const { uri } = memo;
+    const filename = uri?.substring(uri.lastIndexOf("/") + 1);
+    const uploadUri = Platform.OS === "ios" ? uri?.replace("file://", "") : uri;
+    setUploading(true);
+    try {
+      await firebase
+        .storage()
+        .ref(filename)
+        .putFile(uploadUri)
+        .on("state_changed", (snapshot) => {
+          setProgress(
+            Math.round(snapshot.bytesTransferred / snapshot.totalBytes) * 10000
+          );
+        });
+    } catch (e) {
+      console.error(e);
+    }
+    setUploading(false);
+    clearMemo();
+    setProgress(0);
+    Alert.alert(
+      "Photo uploaded!",
+      "Your photo has been uploaded to Firebase Cloud Storage!"
+    );
+  }, []);
+
   return (
     <View>
       <Text category="h4" status="primary" style={styles.header}>
         Kitchen
       </Text>
       <View style={styles.buttonsContainer}>
-        <Button style={{ width: "40%" }} onPress={pickImage}>
+        <Button
+          style={{ width: "40%" }}
+          onPress={pickImage}
+          disabled={uploading}
+        >
           SELECT
         </Button>
-        <Button style={{ width: "40%" }} onPress={captureVideo}>
+        <Button
+          style={{ width: "40%" }}
+          onPress={captureVideo}
+          disabled={uploading}
+        >
           CAPTURE
         </Button>
       </View>
@@ -100,6 +137,14 @@ const NewMemo = () => {
               usePoster
               useNativeControls
             />
+            <Button
+              style={{ width: "40%" }}
+              onPress={uploadImage}
+              disabled={uploading}
+              status="control"
+            >
+              {uploading ? "HANG ON" : "UPLOAD"}
+            </Button>
           </View>
         </MotiView>
       ) : (
@@ -111,7 +156,9 @@ const NewMemo = () => {
           }}
         >
           <Text status="info" style={styles.guideText}>
-            Record a new memo to your memogram via one of the options above.
+            {uploading
+              ? `Uploading... Hang on!{'\n'}${progress}% done`
+              : "Record a new memo to your memogram via one of the options above."}
           </Text>
         </MotiView>
       )}
