@@ -21,7 +21,8 @@ type Props = {
   onSelect: () => void;
 };
 const NewMemo = ({ selected, onSelect }: Props) => {
-  const { loading, memo, updateMemo, createVideo } = useVideos();
+  const { compressed, loading, memo, setCompressed, updateMemo, createVideo } =
+    useVideos();
 
   const [compressingProgress, setCompressingProgress] = useState(0);
   const [uploading, setUploading] = useState(false);
@@ -61,11 +62,11 @@ const NewMemo = ({ selected, onSelect }: Props) => {
         setCompressingProgress(progress);
       }
     );
-
+    setCompressed(true);
     hideMessage();
     setTimeout(() => setAttaching(false), 1000);
     updateMemo({ uri: resultUri.replace("file://", "file:///") });
-  }, [memo]);
+  }, [memo, setCompressed, updateMemo]);
 
   const onCompressVideo = useCallback(async () => {
     Alert.alert(
@@ -162,7 +163,7 @@ const NewMemo = ({ selected, onSelect }: Props) => {
                 <Button
                   style={{ width: "40%", marginRight: 10 }}
                   onPress={onCompressVideo}
-                  disabled={uploading || attaching}
+                  disabled={uploading || attaching || compressed}
                   status="danger"
                 >
                   COMPRESS

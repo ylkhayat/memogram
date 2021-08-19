@@ -153,6 +153,12 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+        release {
+            storeFile file('../../.secrets/memogram.jks')
+            storePassword 'b7ca21163d9340c38aaa54d8cfc0abe2'
+            keyAlias 'QHlvdXNzZWZ0YXJlay9tZW1vZ3JhbQ=='
+            keyPassword 'db4d1e10557a4cd9b2b9a1e9a5c50d5e'
+        }
     }
     buildTypes {
         debug {

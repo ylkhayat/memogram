@@ -9,6 +9,7 @@ const useVideos = () => {
   const firestoreDb = useRef(firebase.firestore());
   const [videos, setVideos] = useState<any>([]);
   const [loading, setLoading] = useState(false);
+  const [compressed, setCompressed] = useState(false);
   const [memo, setMemo] = useState<TMemo>({});
 
   const updateMemo = useCallback((newMemo: TMemo) => {
@@ -143,10 +144,16 @@ const useVideos = () => {
     getVideos();
   }, [getVideos]);
 
+  useEffect(() => {
+    setCompressed(false);
+  }, [memo?.uri]);
+
   return {
     memo,
     loading,
     videos,
+    compressed,
+    setCompressed,
     updateMemo,
     clearMemo,
     getVideos,
