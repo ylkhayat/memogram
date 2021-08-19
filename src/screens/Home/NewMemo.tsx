@@ -1,7 +1,7 @@
-import { Button, Icon, Spinner, Text, useTheme } from "@ui-kitten/components";
-import { Audio, Video } from "expo-av";
-import React, { useCallback, useEffect, useState } from "react";
-import { View, StyleSheet, Platform, Alert, Dimensions } from "react-native";
+import { Button, Icon, Spinner, Text } from "@ui-kitten/components";
+import { Video } from "expo-av";
+import React, { useCallback, useState } from "react";
+import { View, StyleSheet, Alert, Dimensions } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { useNavigation } from "@react-navigation/native";
 import { ALLOWED_DURATION_IN_SECS } from "../../constants";
@@ -9,7 +9,6 @@ import * as VideoThumbnails from "expo-video-thumbnails";
 import { AnimatePresence, MotiView } from "moti";
 const { height: HEIGHT } = Dimensions.get("window");
 import useVideos from "../../hooks/useVideos";
-import { Camera } from "expo-camera";
 import usePermissions from "../../hooks/usePermissions";
 import Permissions from "./Permissions";
 
@@ -42,17 +41,16 @@ const NewMemo = ({ selected, onSelect }: Props) => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Videos,
       allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
+      quality: 0.5,
     });
     if (result.cancelled) return;
-    if (result.duration > ALLOWED_DURATION_IN_SECS * 1000) {
-      Alert.alert(
-        "Lengthy Memo 😕",
-        "Due to limited storage we only allow videos less than 10 seconds"
-      );
-      return;
-    }
+    // if (result.duration > ALLOWED_DURATION_IN_SECS * 1000) {
+    //   Alert.alert(
+    //     "Lengthy Memo 😕",
+    //     "Due to limited storage we only allow videos less than 10 seconds"
+    //   );
+    //   return;
+    // }
     const thumbnail = await getThumbnail(result);
     if (thumbnail.uri) updateMemo({ ...result, thumbnail: thumbnail.uri });
   }, []);
@@ -60,15 +58,14 @@ const NewMemo = ({ selected, onSelect }: Props) => {
   const captureVideo = useCallback(async () => {
     let result = await ImagePicker.launchCameraAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Videos,
-      quality: 0.7,
-      videoMaxDuration: ALLOWED_DURATION_IN_SECS,
+      quality: 0.5,
+      // videoMaxDuration: ALLOWED_DURATION_IN_SECS,
     });
     if (result.cancelled) return;
     const thumbnail = await getThumbnail(result);
     if (thumbnail.uri) updateMemo({ ...result, thumbnail: thumbnail.uri });
   }, [navigate]);
-  const theme = useTheme();
-  const primaryColor = theme["color-primary-default"];
+
   const renderContent = () => (
     <>
       <View style={styles.buttonsContainer}>
@@ -101,8 +98,6 @@ const NewMemo = ({ selected, onSelect }: Props) => {
                 resizeMode="contain"
                 style={styles.video}
                 source={{ uri: memo?.uri }}
-                posterSource={{ uri: memo?.thumbnail }}
-                usePoster
                 useNativeControls
               />
               <Button

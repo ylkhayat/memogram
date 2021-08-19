@@ -61,7 +61,7 @@ const useVideos = () => {
           memo
         );
         showMessage({
-          message: "",
+          message: "Success!",
           description: "Upload was a success!",
           type: "success",
         });

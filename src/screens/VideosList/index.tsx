@@ -1,4 +1,4 @@
-import { Icon, Text, useTheme } from "@ui-kitten/components";
+import { Icon, Spinner, Text, useTheme } from "@ui-kitten/components";
 import React, { useCallback, useState } from "react";
 import { View, StyleSheet, FlatList, TouchableOpacity } from "react-native";
 import useVideos from "../../hooks/useVideos";
@@ -17,6 +17,7 @@ type Props = {
   onSelect: () => void;
 };
 const VideoList = ({ selected, onSelect }: Props) => {
+  const [videoLoading, setVideoLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [previewMemo, setPreviewMemo] = useState({});
   const { loading, videos, getVideos } = useVideos();
@@ -62,11 +63,16 @@ const VideoList = ({ selected, onSelect }: Props) => {
             />
           </TouchableOpacity>
           <Video
+            onLoadStart={() => setVideoLoading(true)}
+            onReadyForDisplay={({ status: { isLoaded } }) =>
+              setVideoLoading(false)
+            }
             resizeMode="contain"
             style={styles.video}
             source={{ uri: previewMemo.video_url }}
             useNativeControls
           />
+          {videoLoading && <Spinner status="info" />}
         </View>
       </Modal>
     </View>
