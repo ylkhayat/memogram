@@ -91,7 +91,7 @@ const NewMemo = ({ selected, onSelect }: Props) => {
     if (result.cancelled) return;
     const thumbnail = await getThumbnail(result);
     if (thumbnail.uri) updateMemo({ ...result, thumbnail: thumbnail.uri });
-  }, []);
+  }, [updateMemo]);
 
   const captureVideo = useCallback(async () => {
     let result = await ImagePicker.launchCameraAsync({
@@ -102,7 +102,7 @@ const NewMemo = ({ selected, onSelect }: Props) => {
     if (result.cancelled) return;
     const thumbnail = await getThumbnail(result);
     if (thumbnail.uri) updateMemo({ ...result, thumbnail: thumbnail.uri });
-  }, [navigate]);
+  }, [navigate, updateMemo]);
 
   const theme = useTheme();
   const primaryColor = theme["color-primary-default"];
