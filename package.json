@@ -1,9 +1,8 @@
 {
-  "main": "node_modules/expo/AppEntry.js",
   "scripts": {
-    "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "start": "react-native start",
+    "android": "react-native run-android",
+    "ios": "react-native run-ios",
     "web": "expo start --web",
     "eject": "expo eject"
   },
@@ -28,6 +27,7 @@
     "expo-media-library": "~12.1.2",
     "expo-splash-screen": "~0.11.2",
     "expo-status-bar": "~1.0.4",
+    "expo-updates": "~0.8.1",
     "expo-video-thumbnails": "~5.2.1",
     "firebase": "8.2.3",
     "lodash": "^4.17.21",
@@ -35,15 +35,18 @@
     "moti": "^0.11.0",
     "react": "16.13.1",
     "react-dom": "16.13.1",
-    "react-native": "https://github.com/expo/react-native/archive/sdk-42.0.0.tar.gz",
+    "react-native": "~0.63.4",
     "react-native-flash-message": "^0.1.23",
+    "react-native-gesture-handler": "~1.10.2",
     "react-native-modal": "^12.1.0",
     "react-native-reanimated": "~2.2.0",
     "react-native-redash": "^16.2.0",
     "react-native-safe-area-context": "3.2.0",
     "react-native-screens": "~3.4.0",
     "react-native-svg": "12.1.1",
+    "react-native-unimodules": "~0.14.5",
     "react-native-video-compressor": "^0.0.3",
+    "react-native-video-processing": "^2.0.0",
     "react-native-web": "~0.13.12"
   },
   "devDependencies": {
@@ -53,5 +56,7 @@
     "@types/react-native": "~0.63.2",
     "typescript": "~4.0.0"
   },
-  "private": true
+  "private": true,
+  "name": "memogram",
+  "version": "1.0.0"
 }
