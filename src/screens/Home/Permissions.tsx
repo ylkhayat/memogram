@@ -13,12 +13,6 @@ const Permissions = () => {
     requestLibrary,
   } = usePermissions();
 
-  console.log({
-    hasCameraPermission,
-    hasLibraryPermission,
-    hasAudioPermission,
-  });
-
   return (
     <View style={styles.container}>
       <Button

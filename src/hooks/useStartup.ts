@@ -51,8 +51,6 @@ export default function useStartup() {
   }, []);
 
   useEffect(() => {
-    console.log(firebase.apps.length > 0);
-
     setIsFirebaseLoading(firebase.apps.length > 0 || true);
   }, [firebase.apps.length]);
 

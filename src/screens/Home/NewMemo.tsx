@@ -1,4 +1,4 @@
-import { Button, Icon, Spinner, Text } from "@ui-kitten/components";
+import { Button, Icon, Spinner, Text, useTheme } from "@ui-kitten/components";
 import { Video } from "expo-av";
 import React, { useCallback, useState } from "react";
 import { View, StyleSheet, Alert, Dimensions } from "react-native";
@@ -11,6 +11,8 @@ import useVideos from "../../hooks/useVideos";
 import usePermissions from "../../hooks/usePermissions";
 import Permissions from "./Permissions";
 import { Video as VideoCompressor } from "react-native-compressor";
+import * as Progress from "react-native-progress";
+import { showMessage, hideMessage } from "react-native-flash-message";
 
 const VIDEO_HEIGHT = HEIGHT / 5;
 
@@ -22,8 +24,8 @@ const NewMemo = ({ selected, onSelect }: Props) => {
   const { loading, memo, updateMemo, createVideo } = useVideos();
 
   const [compressingProgress, setCompressingProgress] = useState(0);
-  const [progress, setProgress] = useState(0);
   const [uploading, setUploading] = useState(false);
+  const [attaching, setAttaching] = useState(false);
   const { hasPermissions } = usePermissions();
   const { navigate } = useNavigation();
 
@@ -33,29 +35,50 @@ const NewMemo = ({ selected, onSelect }: Props) => {
     });
     return response;
   }, []);
-  console.log({ compressingProgress });
 
   const onCreateVideo = useCallback(() => {
     createVideo(memo);
   }, [createVideo, memo]);
 
-  const processVideo = useCallback(
-    async (memo): Promise<ImagePicker.ImagePickerResult> => {
-      const result = await VideoCompressor.compress(
-        memo.uri,
-        {
-          compressionMethod: "auto",
-        },
-        (progress) => {
-          setCompressingProgress(progress);
-        }
-      );
-      console.log({ result });
+  const compressVideo = useCallback(async () => {
+    if (!memo.uri) return;
+    setAttaching(true);
+    showMessage({
+      message: "Compressing 🗃️!",
+      description:
+        "Hang on, files larger than 10 MBs always get compressed! This might take some time!",
+      type: "info",
+      autoHide: false,
+    });
+    const resultUri = await VideoCompressor.compress(
+      memo?.uri,
+      {
+        compressionMethod: "auto",
+      },
+      (progress) => {
+        setCompressingProgress(progress);
+      }
+    );
 
-      return memo;
-    },
-    []
-  );
+    hideMessage();
+    setTimeout(() => setAttaching(false), 1000);
+    updateMemo({ uri: resultUri });
+  }, [memo]);
+
+  const onCompressVideo = useCallback(async () => {
+    Alert.alert(
+      "Attention",
+      "This will probably take a while. Are you sure?",
+      [
+        {
+          text: "Yes",
+          onPress: compressVideo,
+        },
+        { text: "Cancel" },
+      ],
+      { cancelable: true }
+    );
+  }, [compressVideo]);
   const pickVideo = useCallback(async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Videos,
@@ -65,7 +88,6 @@ const NewMemo = ({ selected, onSelect }: Props) => {
 
     if (result.cancelled) return;
     const thumbnail = await getThumbnail(result);
-    result = await processVideo(result);
     if (thumbnail.uri) updateMemo({ ...result, thumbnail: thumbnail.uri });
   }, []);
 
@@ -77,28 +99,41 @@ const NewMemo = ({ selected, onSelect }: Props) => {
     });
     if (result.cancelled) return;
     const thumbnail = await getThumbnail(result);
-    // result = await processVideo(result);
     if (thumbnail.uri) updateMemo({ ...result, thumbnail: thumbnail.uri });
   }, [navigate]);
 
+  const theme = useTheme();
+  const primaryColor = theme["color-primary-default"];
   const renderContent = () => (
     <>
       <View style={styles.buttonsContainer}>
         <Button
           style={{ width: "40%" }}
           onPress={pickVideo}
-          disabled={uploading}
+          disabled={uploading || attaching}
         >
           SELECT
         </Button>
         <Button
           style={{ width: "40%" }}
           onPress={captureVideo}
-          disabled={uploading}
+          disabled={uploading || attaching}
         >
           CAPTURE
         </Button>
       </View>
+      <AnimatePresence>
+        {attaching && (
+          <View style={{ alignSelf: "center", marginTop: 10 }}>
+            <Progress.Bar
+              progress={compressingProgress}
+              borderColor={primaryColor}
+              color={primaryColor}
+            />
+          </View>
+        )}
+      </AnimatePresence>
+
       <AnimatePresence>
         {!!memo?.uri ? (
           <MotiView
@@ -116,21 +151,31 @@ const NewMemo = ({ selected, onSelect }: Props) => {
                 useNativeControls
               />
 
-              <Button
-                style={{ width: "40%" }}
-                onPress={onCreateVideo}
-                disabled={uploading}
-                status="control"
-                accessoryRight={() =>
-                  uploading ? (
-                    <Spinner status="info" />
-                  ) : (
-                    <Icon name="paper-plane" />
-                  )
-                }
-              >
-                {uploading ? "HANG ON" : "UPLOAD"}
-              </Button>
+              <View style={{ flexDirection: "row" }}>
+                <Button
+                  style={{ width: "40%", marginRight: 10 }}
+                  onPress={onCompressVideo}
+                  disabled={uploading || attaching}
+                  status="danger"
+                >
+                  COMPRESS
+                </Button>
+                <Button
+                  style={{ width: "40%" }}
+                  onPress={onCreateVideo}
+                  disabled={uploading || attaching}
+                  status="control"
+                  accessoryRight={() =>
+                    uploading ? (
+                      <Spinner status="info" />
+                    ) : (
+                      <Icon name="paper-plane" />
+                    )
+                  }
+                >
+                  UPLOAD
+                </Button>
+              </View>
             </View>
           </MotiView>
         ) : (
@@ -142,9 +187,7 @@ const NewMemo = ({ selected, onSelect }: Props) => {
             }}
           >
             <Text status="info" style={styles.guideText}>
-              {uploading
-                ? `Uploading... Hang on!{'\n'}${progress}% done`
-                : "Record a new memo to your memogram via one of the options above."}
+              Record a new memo to your memogram via one of the options above.
             </Text>
           </MotiView>
         )}
