@@ -10,6 +10,7 @@ const { height: HEIGHT } = Dimensions.get("window");
 import useVideos from "../../hooks/useVideos";
 import usePermissions from "../../hooks/usePermissions";
 import Permissions from "./Permissions";
+import { ProcessingManager } from "react-native-video-processing";
 
 const VIDEO_HEIGHT = HEIGHT / 5;
 
@@ -38,6 +39,7 @@ const NewMemo = ({ selected, onSelect }: Props) => {
 
   const processVideo = useCallback(
     async (memo): Promise<ImagePicker.ImagePickerResult> => {
+      const data = await ProcessingManager.compress({});
       return memo;
     },
     []
