@@ -4,7 +4,6 @@ import React, { useCallback, useState } from "react";
 import { View, StyleSheet, Alert, Dimensions } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { useNavigation } from "@react-navigation/native";
-import { ALLOWED_DURATION_IN_SECS } from "../../constants";
 import * as VideoThumbnails from "expo-video-thumbnails";
 import { AnimatePresence, MotiView } from "moti";
 const { height: HEIGHT } = Dimensions.get("window");
@@ -37,32 +36,34 @@ const NewMemo = ({ selected, onSelect }: Props) => {
     createVideo(memo);
   }, [createVideo, memo]);
 
+  const processVideo = useCallback(
+    async (memo): Promise<ImagePicker.ImagePickerResult> => {
+      return memo;
+    },
+    []
+  );
   const pickVideo = useCallback(async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Videos,
-      allowsEditing: true,
-      quality: 0.5,
+      quality: 0,
+      videoQuality: 2,
     });
+
     if (result.cancelled) return;
-    // if (result.duration > ALLOWED_DURATION_IN_SECS * 1000) {
-    //   Alert.alert(
-    //     "Lengthy Memo 😕",
-    //     "Due to limited storage we only allow videos less than 10 seconds"
-    //   );
-    //   return;
-    // }
     const thumbnail = await getThumbnail(result);
+    // result = await processVideo(result);
     if (thumbnail.uri) updateMemo({ ...result, thumbnail: thumbnail.uri });
   }, []);
 
   const captureVideo = useCallback(async () => {
     let result = await ImagePicker.launchCameraAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Videos,
-      quality: 0.5,
-      // videoMaxDuration: ALLOWED_DURATION_IN_SECS,
+      quality: 0,
+      videoQuality: 2,
     });
     if (result.cancelled) return;
     const thumbnail = await getThumbnail(result);
+    // result = await processVideo(result);
     if (thumbnail.uri) updateMemo({ ...result, thumbnail: thumbnail.uri });
   }, [navigate]);
 
@@ -100,6 +101,7 @@ const NewMemo = ({ selected, onSelect }: Props) => {
                 source={{ uri: memo?.uri }}
                 useNativeControls
               />
+
               <Button
                 style={{ width: "40%" }}
                 onPress={onCreateVideo}
@@ -144,7 +146,7 @@ const NewMemo = ({ selected, onSelect }: Props) => {
       <AnimatePresence>
         {loading && (
           <View style={[StyleSheet.absoluteFill, styles.loaderContainer]}>
-            <Spinner status="primary" />
+            <Spinner status="info" />
           </View>
         )}
       </AnimatePresence>
