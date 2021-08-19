@@ -10,7 +10,7 @@ const { height: HEIGHT } = Dimensions.get("window");
 import useVideos from "../../hooks/useVideos";
 import usePermissions from "../../hooks/usePermissions";
 import Permissions from "./Permissions";
-import { ProcessingManager } from "react-native-video-processing";
+import { Video as VideoCompressor } from "react-native-compressor";
 
 const VIDEO_HEIGHT = HEIGHT / 5;
 
@@ -21,6 +21,7 @@ type Props = {
 const NewMemo = ({ selected, onSelect }: Props) => {
   const { loading, memo, updateMemo, createVideo } = useVideos();
 
+  const [compressingProgress, setCompressingProgress] = useState(0);
   const [progress, setProgress] = useState(0);
   const [uploading, setUploading] = useState(false);
   const { hasPermissions } = usePermissions();
@@ -32,6 +33,7 @@ const NewMemo = ({ selected, onSelect }: Props) => {
     });
     return response;
   }, []);
+  console.log({ compressingProgress });
 
   const onCreateVideo = useCallback(() => {
     createVideo(memo);
@@ -39,7 +41,17 @@ const NewMemo = ({ selected, onSelect }: Props) => {
 
   const processVideo = useCallback(
     async (memo): Promise<ImagePicker.ImagePickerResult> => {
-      const data = await ProcessingManager.compress({});
+      const result = await VideoCompressor.compress(
+        memo.uri,
+        {
+          compressionMethod: "auto",
+        },
+        (progress) => {
+          setCompressingProgress(progress);
+        }
+      );
+      console.log({ result });
+
       return memo;
     },
     []
@@ -53,7 +65,7 @@ const NewMemo = ({ selected, onSelect }: Props) => {
 
     if (result.cancelled) return;
     const thumbnail = await getThumbnail(result);
-    // result = await processVideo(result);
+    result = await processVideo(result);
     if (thumbnail.uri) updateMemo({ ...result, thumbnail: thumbnail.uri });
   }, []);
 
