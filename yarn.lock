@@ -5628,6 +5628,11 @@ react-native-animatable@1.3.3:
   dependencies:
     prop-types "^15.7.2"
 
+react-native-compressor@^0.5.2:
+  version "0.5.2"
+  resolved "https://registry.yarnpkg.com/react-native-compressor/-/react-native-compressor-0.5.2.tgz#ce858fdf38dd2c373cd4f50f4776f8d649ec153d"
+  integrity sha512-RjfzeFqdy/SvqSc7rGkdyagDsiJ+tNYyOFzdBptOshRp6UDr1/vvmD3FsK+l9LEvtOXrl07ytIHeYj1aUaBxgQ==
+
 react-native-eva-icons@^1.3.1:
   version "1.3.1"
   resolved "https://registry.yarnpkg.com/react-native-eva-icons/-/react-native-eva-icons-1.3.1.tgz#1e6e019b0fd3cb1669db50bd6bbdaa6d89327593"
