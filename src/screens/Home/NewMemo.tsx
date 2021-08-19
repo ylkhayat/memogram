@@ -40,13 +40,15 @@ const NewMemo = ({ selected, onSelect }: Props) => {
     createVideo(memo);
   }, [createVideo, memo]);
 
+  console.log({ memo });
+
   const compressVideo = useCallback(async () => {
     if (!memo.uri) return;
     setAttaching(true);
     showMessage({
       message: "Compressing 🗃️!",
       description:
-        "Hang on, files larger than 10 MBs always get compressed! This might take some time!",
+        "We suggest you get a coffee in the meantime ☕. As we said, this might take some time!",
       type: "info",
       autoHide: false,
     });
@@ -62,7 +64,7 @@ const NewMemo = ({ selected, onSelect }: Props) => {
 
     hideMessage();
     setTimeout(() => setAttaching(false), 1000);
-    updateMemo({ uri: resultUri });
+    updateMemo({ uri: resultUri.replace("file://", "file:///") });
   }, [memo]);
 
   const onCompressVideo = useCallback(async () => {
@@ -104,6 +106,9 @@ const NewMemo = ({ selected, onSelect }: Props) => {
 
   const theme = useTheme();
   const primaryColor = theme["color-primary-default"];
+
+  // file://data/user/0/app.memogram/cache/3ef93397-9334-4d04-a5c6-d06ba431038c.mp4
+  // file:///data/user/0/app.memogram/cache/ImagePicker/21b0d4b7-d6ce-4267-9126-b0bb14b64c03.mp4
   const renderContent = () => (
     <>
       <View style={styles.buttonsContainer}>
@@ -145,10 +150,12 @@ const NewMemo = ({ selected, onSelect }: Props) => {
           >
             <View style={styles.videoContainer}>
               <Video
+                key={memo.uri}
                 resizeMode="contain"
                 style={styles.video}
                 source={{ uri: memo?.uri }}
                 useNativeControls
+                isMuted
               />
 
               <View style={{ flexDirection: "row" }}>
