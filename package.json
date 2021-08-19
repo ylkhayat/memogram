@@ -36,6 +36,7 @@
     "react": "16.13.1",
     "react-dom": "16.13.1",
     "react-native": "~0.63.4",
+    "react-native-compressor": "^0.5.2",
     "react-native-flash-message": "^0.1.23",
     "react-native-gesture-handler": "~1.10.2",
     "react-native-modal": "^12.1.0",
