@@ -30,7 +30,6 @@ const NewMemo = ({ selected, onSelect }: Props) => {
     createVideo(memo);
   }, [createVideo, memo]);
 
-  console.log({ memo });
 
   const compressVideo = useCallback(async () => {
     if (!memo.uri) return;
