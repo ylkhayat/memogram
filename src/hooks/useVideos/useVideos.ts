@@ -4,6 +4,7 @@ import set from "lodash/set";
 import { getFilename } from "../../utils";
 import { TMemo } from "./type";
 import { showMessage } from "react-native-flash-message";
+import * as VideoThumbnails from "expo-video-thumbnails";
 
 const useVideos = () => {
   const firestoreDb = useRef(firebase.firestore());
@@ -26,6 +27,14 @@ const useVideos = () => {
   const clearMemo = useCallback(() => {
     setMemo({});
   }, []);
+
+  const generateThumbnail = useCallback(async () => {
+    if (!memo?.uri || !memo.duration) return;
+    const thumbnail = await VideoThumbnails.getThumbnailAsync(memo.uri, {
+      time: memo?.duration / 2,
+    });
+    if (thumbnail.uri) updateMemo({ thumbnail: thumbnail.uri });
+  }, [memo.duration, memo.uri]);
 
   const getVideos = useCallback(async () => {
     try {
@@ -142,6 +151,10 @@ const useVideos = () => {
   useEffect(() => {
     getVideos();
   }, [getVideos]);
+
+  useEffect(() => {
+    generateThumbnail();
+  }, [generateThumbnail]);
 
   return {
     memo,

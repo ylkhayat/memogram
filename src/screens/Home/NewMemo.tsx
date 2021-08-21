@@ -3,8 +3,6 @@ import { Video } from "expo-av";
 import React, { useCallback, useState } from "react";
 import { View, StyleSheet, Alert, Dimensions } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import { useNavigation } from "@react-navigation/native";
-import * as VideoThumbnails from "expo-video-thumbnails";
 import { AnimatePresence, MotiView } from "moti";
 const { height: HEIGHT } = Dimensions.get("window");
 import useVideos from "../../hooks/useVideos";
@@ -27,14 +25,6 @@ const NewMemo = ({ selected, onSelect }: Props) => {
   const [uploading, setUploading] = useState(false);
   const [attaching, setAttaching] = useState(false);
   const { hasPermissions } = usePermissions();
-  const { navigate } = useNavigation();
-
-  const getThumbnail = useCallback(async ({ uri, duration }) => {
-    const response = await VideoThumbnails.getThumbnailAsync(uri, {
-      time: duration / 2,
-    });
-    return response;
-  }, []);
 
   const onCreateVideo = useCallback(() => {
     createVideo(memo);
@@ -88,8 +78,7 @@ const NewMemo = ({ selected, onSelect }: Props) => {
     });
 
     if (result.cancelled) return;
-    const thumbnail = await getThumbnail(result);
-    if (thumbnail.uri) updateMemo({ ...result, thumbnail: thumbnail.uri });
+    updateMemo(result);
   }, [updateMemo]);
 
   const captureVideo = useCallback(async () => {
@@ -99,9 +88,8 @@ const NewMemo = ({ selected, onSelect }: Props) => {
       videoQuality: 2,
     });
     if (result.cancelled) return;
-    const thumbnail = await getThumbnail(result);
-    if (thumbnail.uri) updateMemo({ ...result, thumbnail: thumbnail.uri });
-  }, [navigate, updateMemo]);
+    updateMemo(result);
+  }, [updateMemo]);
 
   const theme = useTheme();
   const primaryColor = theme["color-primary-default"];

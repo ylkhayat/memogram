@@ -2,10 +2,17 @@ const MetroConfig = require("@ui-kitten/metro-config");
 
 const evaConfig = {
   evaPackage: "@eva-design/eva",
-  // Optional, but may be useful when using mapping customization feature.
   customMappingPath: "./mapping/styleMapping.json",
 };
 
 module.exports = MetroConfig.create(evaConfig, {
-  // Whatever was previously specified
+  transformer: {
+    assetPlugins: ["expo-asset/tools/hashAssetFiles"],
+    getTransformOptions: async () => ({
+      transform: {
+        experimentalImportSupport: false,
+        inlineRequires: false,
+      },
+    }),
+  },
 });
