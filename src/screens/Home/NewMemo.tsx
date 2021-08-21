@@ -21,8 +21,7 @@ type Props = {
   onSelect: () => void;
 };
 const NewMemo = ({ selected, onSelect }: Props) => {
-  const { compressed, loading, memo, setCompressed, updateMemo, createVideo } =
-    useVideos();
+  const { loading, memo, updateMemo, createVideo } = useVideos();
 
   const [compressingProgress, setCompressingProgress] = useState(0);
   const [uploading, setUploading] = useState(false);
@@ -62,11 +61,10 @@ const NewMemo = ({ selected, onSelect }: Props) => {
         setCompressingProgress(progress);
       }
     );
-    setCompressed(true);
     hideMessage();
     setTimeout(() => setAttaching(false), 1000);
-    updateMemo({ uri: resultUri.replace("file://", "file:///") });
-  }, [memo, setCompressed, updateMemo]);
+    updateMemo({ compressedUri: resultUri.replace("file://", "file:///") });
+  }, [memo, updateMemo]);
 
   const onCompressVideo = useCallback(async () => {
     Alert.alert(
@@ -108,8 +106,6 @@ const NewMemo = ({ selected, onSelect }: Props) => {
   const theme = useTheme();
   const primaryColor = theme["color-primary-default"];
 
-  // file://data/user/0/app.memogram/cache/3ef93397-9334-4d04-a5c6-d06ba431038c.mp4
-  // file:///data/user/0/app.memogram/cache/ImagePicker/21b0d4b7-d6ce-4267-9126-b0bb14b64c03.mp4
   const renderContent = () => (
     <>
       <View style={styles.buttonsContainer}>
@@ -150,20 +146,42 @@ const NewMemo = ({ selected, onSelect }: Props) => {
             }}
           >
             <View style={styles.videoContainer}>
-              <Video
-                key={memo.uri}
-                resizeMode="contain"
-                style={styles.video}
-                source={{ uri: memo?.uri }}
-                useNativeControls
-                isMuted
-              />
+              <View style={{ flexDirection: "row" }}>
+                <View style={{ flex: 1, alignItems: "center" }}>
+                  <Text status="info" style={{ marginTop: 10 }}>
+                    Original
+                  </Text>
+                  <Video
+                    key={memo.uri}
+                    resizeMode="contain"
+                    style={styles.video}
+                    source={{ uri: memo?.uri }}
+                    useNativeControls
+                    isMuted
+                  />
+                </View>
+                {!!memo.compressedUri && (
+                  <View style={{ flex: 1, alignItems: "center" }}>
+                    <Text status="info" style={{ marginTop: 10 }}>
+                      Compressed
+                    </Text>
+                    <Video
+                      key={memo.uri}
+                      resizeMode="contain"
+                      style={styles.video}
+                      source={{ uri: memo?.compressedUri }}
+                      useNativeControls
+                      isMuted
+                    />
+                  </View>
+                )}
+              </View>
 
               <View style={{ flexDirection: "row" }}>
                 <Button
                   style={{ width: "40%", marginRight: 10 }}
                   onPress={onCompressVideo}
-                  disabled={uploading || attaching || compressed}
+                  disabled={uploading || attaching || !!memo.compressedUri}
                   status="danger"
                 >
                   COMPRESS
@@ -247,6 +265,6 @@ const styles = StyleSheet.create({
     width: "100%",
     height: VIDEO_HEIGHT,
     alignSelf: "center",
-    marginVertical: 20,
+    marginVertical: 10,
   },
 });

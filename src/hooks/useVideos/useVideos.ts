@@ -9,7 +9,6 @@ const useVideos = () => {
   const firestoreDb = useRef(firebase.firestore());
   const [videos, setVideos] = useState<any>([]);
   const [loading, setLoading] = useState(false);
-  const [compressed, setCompressed] = useState(false);
   const [memo, setMemo] = useState<TMemo>({});
 
   const updateMemo = useCallback((newMemo: TMemo) => {
@@ -81,15 +80,15 @@ const useVideos = () => {
       });
   }, []);
 
-  const prepareBlobs = useCallback(async (memo) => {
+  const prepareBlobs = useCallback(async (memo: TMemo) => {
     showMessage({
       message: "Getting your files ready!",
       description: "Hang in there pal 💥",
       type: "warning",
       autoHide: false,
     });
-    const { uri, thumbnail } = memo;
-    if (!uri) return;
+    const { uri, compressedUri, thumbnail } = memo;
+    if (!uri || !compressedUri) return;
     const videoBlob: any = await new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
       xhr.onload = function () {
@@ -100,7 +99,7 @@ const useVideos = () => {
         reject(new TypeError("Network request failed"));
       };
       xhr.responseType = "blob";
-      xhr.open("GET", uri, true);
+      xhr.open("GET", compressedUri || uri, true);
       xhr.send(null);
     });
     if (!thumbnail) return;
@@ -144,16 +143,10 @@ const useVideos = () => {
     getVideos();
   }, [getVideos]);
 
-  useEffect(() => {
-    setCompressed(false);
-  }, [memo?.uri]);
-
   return {
     memo,
     loading,
     videos,
-    compressed,
-    setCompressed,
     updateMemo,
     clearMemo,
     getVideos,
